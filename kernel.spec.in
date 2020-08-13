@@ -134,6 +134,10 @@ Patch14: 0015-xen-events-avoid-NULL-pointer-dereference-in-evtchn_.patch
 Patch15: 0001-Create-uapi-power_supply-from-enums-and-power_supply.patch
 Patch16: 0002-uapi-linux-power_supply.h-add-power_supply_is_str_pr.patch
 
+%if 0%{?suse_version} >= 1500
+Patch17: 1001-suse-add-ksym-provides-tool.patch
+%endif
+
 %description
 Qubes Dom0 kernel.
 
@@ -153,7 +157,7 @@ cd linux-%upstream_version
 # drop EXTRAVERSION - possible -rc suffix already included in %release
 sed -i -e 's/^EXTRAVERSION = -rc.*/EXTRAVERSION =/' Makefile
 
-%if 0%{?fedora} >= 31 || 0%{?rhel} >= 8
+%if 0%{?fedora} >= 31 || 0%{?rhel} >= 8 || 0%{?suse_version} >= 1500
 # Mangle /usr/bin/python shebangs to /usr/bin/python3
 # Mangle all Python shebangs to be Python 3 explicitly
 # -p preserves timestamps
@@ -435,6 +439,7 @@ PATH="/sbin:$PATH" dracut --nomdadmconf --nolvmconf \
 # workaround for buggy dracut-044 in Fedora 25
 # https://bugzilla.redhat.com/show_bug.cgi?id=1431317
 # https://github.com/dracutdevs/dracut/issues/194
+%if 0%{?fedora} == 25
 modules_dep=$(lsinitrd "%buildroot/%vm_install_dir/initramfs" \
     "usr/lib/modules/%kernelrelease/modules.dep")
 if [ -z "$modules_dep" ]; then
@@ -453,6 +458,7 @@ if [ -z "$modules_dep" ]; then
       | gzip -n > %buildroot/%vm_install_dir/initramfs || exit 1
     popd
 fi
+%endif
 
 cp -p arch/x86/boot/bzImage %buildroot/%vm_install_dir/vmlinuz
 
