@@ -120,6 +120,9 @@ Patch13: 0014-xen-pcifront-pciback-Update-pciif.h-with-err-and-res.patch
 Patch14: 0015-xen-pciback-add-attribute-to-allow-MSI-enable-flag-w.patch
 Patch15: 0016-drm-change-func-to-better-detect-wether-swiotlb-is-n.patch
 Patch16: 0017-drm-amdgpu-fix-dma-mask-check-in-gmc_v6_0.c.patch
+%if 0%{?suse_version} >= 1500
+Patch17: 1001-suse-add-ksym-provides-tool.patch
+%endif
 
 %description
 Qubes Dom0 kernel.
@@ -402,6 +405,7 @@ PATH="/sbin:$PATH" dracut --nomdadmconf --nolvmconf \
 # workaround for buggy dracut-044 in Fedora 25
 # https://bugzilla.redhat.com/show_bug.cgi?id=1431317
 # https://github.com/dracutdevs/dracut/issues/194
+%if 0%{?fedora} == 25
 modules_dep=$(lsinitrd "%buildroot/%vm_install_dir/initramfs" \
     "usr/lib/modules/%kernelrelease/modules.dep")
 if [ -z "$modules_dep" ]; then
@@ -420,6 +424,7 @@ if [ -z "$modules_dep" ]; then
       | gzip -n > %buildroot/%vm_install_dir/initramfs || exit 1
     popd
 fi
+%endif
 
 cp -p arch/x86/boot/bzImage %buildroot/%vm_install_dir/vmlinuz
 
@@ -444,7 +449,7 @@ cp -a %buildroot/lib/firmware/%kernelrelease %buildroot%vm_install_dir/modules/f
 rm -f %buildroot%vm_install_dir/modules/%kernelrelease/build
 cp -a %buildroot/%src_install_dir %buildroot%vm_install_dir/modules/%kernelrelease/build
 
-%if 0%{?fedora} >= 25
+%if 0%{?fedora} >= 25 || 0%{?suse_version} >= 1500
 # include kernel+initramfs also inside modules.img, for direct kernel boot with
 # stubdomain
 cp %buildroot%vm_install_dir/vmlinuz %buildroot%vm_install_dir/modules/
@@ -568,7 +573,7 @@ Qubes domU kernel.
 
 %post qubes-vm
 
-%if 0%{?fedora} < 25
+%if 0%{?fedora} && 0%{?fedora} < 25
 mkdir /tmp/qubes-modules-%kernelrelease
 truncate -s 500M /tmp/qubes-modules-%kernelrelease.img
 mkfs -t ext3 -F /tmp/qubes-modules-%kernelrelease.img > /dev/null
@@ -615,14 +620,14 @@ exit 0
 %files qubes-vm
 %defattr(-, root, root)
 %dir %vm_install_dir
-%if 0%{?fedora} < 25
+%if 0%{?fedora} && 0%{?fedora} < 25
 %ghost %attr(0644, root, root) %vm_install_dir/modules.img
 %else
 %attr(0644, root, root) %vm_install_dir/modules.img
 %endif
 %attr(0644, root, root) %vm_install_dir/initramfs
 %attr(0644, root, root) %vm_install_dir/vmlinuz
-%if 0%{?fedora} < 25
+%if 0%{?fedora} && 0%{?fedora} < 25
 %vm_install_dir/modules
 %endif
 %attr(0644, root, root) %vm_install_dir/default-kernelopts-common.txt
