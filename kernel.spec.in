@@ -138,6 +138,8 @@ Patch16: 0002-uapi-linux-power_supply.h-add-power_supply_is_str_pr.patch
 Patch17: 1001-suse-add-ksym-provides-tool.patch
 %endif
 
+Patch20: 0001-xen-events-don-t-use-chip_data-for-legacy-IRQs.patch
+
 %description
 Qubes Dom0 kernel.
 
