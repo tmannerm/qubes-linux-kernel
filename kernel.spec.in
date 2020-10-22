@@ -138,8 +138,6 @@ Patch14: 0015-xen-events-avoid-NULL-pointer-dereference-in-evtchn_.patch
 Patch17: 1001-suse-add-ksym-provides-tool.patch
 %endif
 
-Patch20: 0001-xen-events-don-t-use-chip_data-for-legacy-IRQs.patch
-
 %description
 Qubes Dom0 kernel.
 
