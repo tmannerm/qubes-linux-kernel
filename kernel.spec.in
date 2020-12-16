@@ -528,6 +528,12 @@ done
 %post
 /sbin/depmod -a %{kernelrelease}
 
+%if 0%{?suse_version} == 1500
+%define kernel_install_location /usr/bin
+%else
+%define kernel_install_location /bin
+%endif
+
 %posttrans
 # with kernel-4.14+ plymouth detects hvc0 serial console and forces text boot
 # we simply make plymouth ignore it to recover the splash screen
@@ -543,10 +549,10 @@ if [ -f /boot/efi/EFI/qubes/xen.cfg ]; then
     fi
 fi
 
-/bin/kernel-install add %{kernelrelease} /boot/vmlinuz-%{kernelrelease} || exit $?
+%{kernel_install_location}/kernel-install add %{kernelrelease} /boot/vmlinuz-%{kernelrelease} || exit $?
 
 %preun
-/bin/kernel-install remove %{kernelrelease} /boot/vmlinuz-%{kernelrelease} || exit $?
+%{kernel_install_location}/kernel-install remove %{kernelrelease} /boot/vmlinuz-%{kernelrelease} || exit $?
 
 %files
 %defattr(-, root, root)
