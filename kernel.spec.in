@@ -3,7 +3,7 @@
 #
 
 %define variant qubes
-%define plainrel @REL@
+%define plainrel @REL@%{?dist}
 %define rel %{plainrel}.%{variant}
 %define version %(echo '@VERSION@' | sed 's/~rc.*/.0/')
 %define upstream_version %(echo '@VERSION@' | sed 's/~rc/-rc/')
@@ -108,6 +108,7 @@ Source0:        linux-%{upstream_version}.tar.gz
 %endif
 Source1:        @dummy-psu@
 Source2:        @dummy-backlight@
+Source3:        @linux-utils@
 Source5:	wireguard-linux-compat-1.0.20201112.tar.xz
 Source16:       guards
 Source17:       apply-patches
@@ -132,7 +133,6 @@ Patch10: 0011-xen-blkfront-make-local-copy-of-response-before-usin.patch
 Patch11: 0012-xen-blkfront-prepare-request-locally-only-then-put-i.patch
 Patch12: 0013-xen-pcifront-pciback-Update-pciif.h-with-err-and-res.patch
 Patch13: 0014-xen-pciback-add-attribute-to-allow-MSI-enable-flag-w.patch
-Patch14: 0015-xsa350-linux.patch
 
 %if 0%{?suse_version} >= 1500
 Patch17: 1001-suse-add-ksym-provides-tool.patch
@@ -210,10 +210,7 @@ rm -rf %_builddir/dummy-backlight
 tar -x -C %_builddir -zf %{SOURCE2}
 
 rm -rf %_builddir/u2mfn
-u2mfn_ver=`dkms status u2mfn|tail -n 1|cut -f 2 -d ' '|tr -d ':,:'`
-if [ -n "$u2mfn_ver" ]; then
-    cp -r /usr/src/u2mfn-$u2mfn_ver %_builddir/u2mfn
-fi
+tar -x -C %_builddir -zf %{SOURCE3} --strip-components=2 linux-utils/kernel-modules/u2mfn
 
 rm -rf %_builddir/wireguard
 tar x -C %_builddir -Jpf %{SOURCE5}
